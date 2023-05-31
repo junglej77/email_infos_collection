@@ -54,6 +54,7 @@ class Email_infos_collection
 		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-email_infos_collection-i18n.php';
 		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-email_infos_collection-admin.php';
 		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-email_infos_collection-public.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-jungle_browse_statistics-tools.php'; // 自定义工具函数
 
 		$this->loader = new Email_infos_collection_Loader();
 	}
@@ -90,8 +91,10 @@ class Email_infos_collection
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('rest_api_init', $plugin_admin, 'ajax_rest_api_init'); // 注册ajax 请求
+		$this->loader->add_action('wp_ajax_upload_file', $plugin_admin, 'handle_file_upload'); // 上传文件
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_plugin_admin_menu'); // 注册菜单
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_plugin_admin_submenu'); // 注册子菜单
+
 	}
 
 	/**

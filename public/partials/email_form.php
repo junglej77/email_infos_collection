@@ -5,23 +5,23 @@
             <div class="dialog-header">Request A Quote</div>
             <div class="dialog-message">
                 <div class="formItem formItem_inline">
-                    <input id="from_email" type="text" placeholder="Email">
+                    <input id="jungle_email_name" type="text" placeholder="Full Name">
                 </div>
                 <div class="formItem formItem_inline">
-                    <input id="from_name" type="text" placeholder="Full Name">
+                    <input id="jungle_email_account" type="email" name="email" placeholder="Email">
                 </div>
                 <div class="formItem formItem_inline">
-                    <input id="from_name" type="text" placeholder="Phone">
+                    <input id="jungle_email_phone" type="text" placeholder="Phone">
                 </div>
                 <div class="formItem formItem_inline">
-                    <input id="from_name" type="text" placeholder="Subject">
+                    <input id="jungle_email_subject" type="text" placeholder="Subject">
                 </div>
                 <div class="formItem">
-                    <textarea id="email_body" type="textarea" rows="4" name="message" placeholder="What can we help?"></textarea>
+                    <textarea id="jungle_email_message" type="textarea" rows="4" placeholder="What can we help?"></textarea>
                 </div>
                 <div class="formItem file">
                     <div class="input_title">Upload Your Design</div>
-                    <input id="email_attachment" type="file" name="Attachment">
+                    <input id="jungle_email_attachment" type="file">
                 </div>
                 <div class="formItem submit">
                     <input id="sendEmail" type="submit" value=" Send Your Inquiry">

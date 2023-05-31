@@ -12,6 +12,7 @@ class Email_infos_collection_Public
 	}
 	public function enqueue_styles()
 	{
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/email_info_form_pop.css', array(), $this->version, 'all');
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/email_infos_collection-public.css', array(), $this->version, 'all');
 	}
 	public function enqueue_scripts()
@@ -20,7 +21,8 @@ class Email_infos_collection_Public
 	}
 	public function emailFormSet()
 	{
-		$emailForm_template = file_get_contents(__DIR__ . '/partials/email_form.php');
+		$emailForm_template = file_get_contents(__DIR__ . '/partials/email_form.php'); // 初始化模板
+		/**在这里调整手机表单的样式和需要的表单 */
 		echo $emailForm_template;
 	}
 }
