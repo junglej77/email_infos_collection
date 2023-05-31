@@ -106,6 +106,7 @@ class Email_infos_collection
 
 		$plugin_public = new Email_infos_collection_Public($this->get_plugin_name(), $this->get_version());
 
+		$this->loader->add_action('wp_footer', $plugin_public, 'emailFormSet');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts', 20);
 	}

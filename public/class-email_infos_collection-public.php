@@ -18,4 +18,9 @@ class Email_infos_collection_Public
 	{
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/email_infos_collection-public.js', array(), $this->version, true);
 	}
+	public function emailFormSet()
+	{
+		$emailForm_template = file_get_contents(__DIR__ . '/partials/email_form.php');
+		echo $emailForm_template;
+	}
 }
