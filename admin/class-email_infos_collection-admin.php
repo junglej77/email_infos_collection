@@ -1,4 +1,12 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+require_once ABSPATH . WPINC . '/PHPMailer/PHPMailer.php';
+require_once ABSPATH . WPINC . '/PHPMailer/SMTP.php';
+require_once ABSPATH . WPINC . '/PHPMailer/Exception.php';
 class Email_infos_collection_Admin
 {
 	private $plugin_name;
@@ -118,6 +126,91 @@ class Email_infos_collection_Admin
 		{
 			update_option($request['name'], $request['value']);
 			return get_option($request['name']);
+		}
+		// 发送邮件
+		register_rest_route('info/email', '/send', array(
+			'methods' => 'POST',
+			'callback' => 'send_email',
+			'args' => array(
+				'to_email' => array(
+					'required' => true
+				),
+				'to_name' => array(
+					'required' => true
+				),
+				'subject' => array(
+					'required' => true
+				),
+				'body' => array(
+					'required' => true
+				),
+				'attachment_path' => array(
+					'required' => true
+				),
+			),
+		));
+		function send_email($request)
+		{
+			// 创建 PHPMailer 实例
+			$phpmailer = new PHPMailer();
+
+			$phpmailer->isSMTP();
+			// SMTP 配置
+			$phpmailer->Host       = get_option('jungle_email_host'); // SMTP server
+			$phpmailer->SMTPAuth   = true; // Enable SMTP authentication
+			$phpmailer->Username   = get_option('jungle_email_account'); // SMTP username
+			$phpmailer->Password   = get_option('jungle_email_password'); // SMTP password
+			$phpmailer->SMTPSecure =  get_option('jungle_email_encryption'); // Encryption type, tls or ssl
+			$phpmailer->Port       = get_option('jungle_email_port'); // SMTP Port
+
+			// 获取传参参数
+			$from_email = get_option('jungle_email_account');
+			$from_name  = 'jungle';
+			$to_email   = $request['to_email'];
+			$to_name    = $request['to_name'];
+			$subject    = $request['subject'];
+			$body       = $request['body'];
+			$attachment_path       = $request['attachment_path'];
+
+			// 配置发件人和收件人
+			$phpmailer->setFrom($from_email,  $from_name);
+			$phpmailer->addAddress($to_email, $to_name);
+
+
+			// 邮件内容为 HTML 格式
+			$phpmailer->isHTML(true);
+			$phpmailer->Subject = $subject;
+			$phpmailer->Body    = $body;
+
+			if (!empty($attachment_path)) {
+				// Read the file contents and encode using base64
+				$file_contents = file_get_contents($attachment_path);
+				$file_data = chunk_split(base64_encode($file_contents));
+
+				// Set the appropriate MIME type
+				$mime_type = mime_content_type($attachment_path);
+
+				// Add the attachment to the email
+				$filename = basename($attachment_path);
+				$phpmailer->addStringAttachment($file_data, $filename, 'base64', $mime_type);
+			}
+
+			try {
+				// 发送邮件
+				$phpmailer->send();
+				// 发送成功时的处理逻辑
+				return  array(
+					'code' => 200,
+					'result' => '邮件发送成功',
+				);
+			} catch (Exception $e) {
+				// 发送失败时的处理逻辑
+				return array(
+					'code' => 500,
+					'result' => '邮件发送失败: ' . $phpmailer->ErrorInfo,
+				);
+			}
+			// 输出结果到页面
 		}
 	}
 }
