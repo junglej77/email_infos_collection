@@ -4,6 +4,7 @@
     <p>端口<input type="text" v-model="jungle_email_port"></p>
     <p>邮箱账号<input type="text" v-model="jungle_email_account"></p>
     <p>密码<input type="text" v-model="jungle_email_password"></p>
+    <p>邮件回复内容<input type="text" v-model="jungle_email_auto_repaly"></p>
     <button @click="submit">提交</button>
 </div>
 <script>
@@ -14,15 +15,12 @@
                 jungle_email_encryption: '',
                 jungle_email_port: '',
                 jungle_email_account: '',
-                jungle_email_password: ''
+                jungle_email_password: '',
+                jungle_email_auto_repaly: ''
             }
         },
         mounted() {
-            this.getEmailHost()
-            this.getEmailEncryption()
-            this.getEmailPort()
-            this.getEmailAccount()
-            this.getEmailPassword()
+            this.getEmailSetup()
         },
         methods: {
             getWpOption: async (name) => {
@@ -45,20 +43,13 @@
                     console.error(error);
                 }
             },
-            async getEmailHost() {
+            async getEmailSetup() {
                 this.jungle_email_host = await this.getWpOption('jungle_email_host') || ''
-            },
-            async getEmailEncryption() {
                 this.jungle_email_encryption = await this.getWpOption('jungle_email_encryption') || ''
-            },
-            async getEmailPort() {
                 this.jungle_email_port = await this.getWpOption('jungle_email_port') || ''
-            },
-            async getEmailAccount() {
                 this.jungle_email_account = await this.getWpOption('jungle_email_account') || ''
-            },
-            async getEmailPassword() {
                 this.jungle_email_password = await this.getWpOption('jungle_email_password') || ''
+                this.jungle_email_auto_repaly = await this.getWpOption('jungle_email_auto_repaly') || ''
             },
             submit() {
                 this.updateAddWpOption('jungle_email_host', this.jungle_email_host);
@@ -66,7 +57,9 @@
                 this.updateAddWpOption('jungle_email_port', this.jungle_email_port);
                 this.updateAddWpOption('jungle_email_account', this.jungle_email_account);
                 this.updateAddWpOption('jungle_email_password', this.jungle_email_password);
+                this.updateAddWpOption('jungle_email_auto_repaly', this.jungle_email_auto_repaly);
             },
+
             clone(obj) {
                 var o;
                 // 如果  他是对象object的话  , 因为null,object,array  也是'object';

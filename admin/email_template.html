@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Email Template</title>
+    <style>
+        .email-content {
+            margin: auto;
+            padding: 30px;
+            width: 90%;
+            border-radius: 10px;
+            background: #aeaeae;
+            box-shadow: 0 0 20px 0px #9d9898;
+        }
+
+        .email-content p {
+            font-size: 16px;
+        }
+
+        .email-content .imgwrap {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="your_replay"> {{email_auto_repaly}}</h1>
+    <div class="email-content">
+        <p>{{body}}</p>
+        <div class="imgwrap">
+        </div>
+    </div>
+</body>
+
+</html>

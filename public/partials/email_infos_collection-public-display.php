@@ -1,16 +1,33 @@
-<?php
-
-/**
- * Provide a public-facing view for the plugin
- *
- * This file is used to markup the public-facing aspects of the plugin.
- *
- * @link       https://grdtest.com:81
- * @since      1.0.0
- *
- * @package    Email_infos_collection
- * @subpackage Email_infos_collection/public/partials
- */
-?>
-
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
+<div class="dialog_popup_Email hidden">
+    <div class="dialog_content_wrap">
+        <div class="dialog_content wow" data-wow-duration="2s">
+            <span class="dialog_close">x</span>
+            <div class="dialog-header">Request A Quote</div>
+            <div class="dialog-message">
+                <div class="formItem formItem_inline">
+                    <input id="from_email" type="text" placeholder="Email">
+                </div>
+                <div class="formItem formItem_inline">
+                    <input id="from_name" type="text" placeholder="Full Name">
+                </div>
+                <div class="formItem formItem_inline">
+                    <input id="from_name" type="text" placeholder="Phone">
+                </div>
+                <div class="formItem formItem_inline">
+                    <input id="from_name" type="text" placeholder="Subject">
+                </div>
+                <div class="formItem">
+                    <textarea id="email_body" type="textarea" rows="4" name="message" placeholder="What can we help?"></textarea>
+                </div>
+                <div class="formItem file">
+                    <div class="input_title">Upload Your Design</div>
+                    <input id="email_attachment" type="file" name="Attachment">
+                </div>
+                <div class="formItem submit">
+                    <input id="sendEmail" type="submit" value=" Send Your Inquiry">
+                </div>
+            </div>
+            <h4 class="info">*We respect your confidentiality and all information are protected.</h4>
+        </div>
+    </div>
+</div>
