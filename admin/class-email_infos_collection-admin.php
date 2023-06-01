@@ -24,7 +24,36 @@ class Email_infos_collection_Admin
 	}
 	public function enqueue_scripts()
 	{
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/email_infos_collection-admin.js', array('jquery'), $this->version, false);
+		global $pagenow;
+		if (
+			$pagenow == 'admin.php'
+		) {
+			// 加载 Vue.js 库
+			// wp_enqueue_script('vue', 'https://cdn.jsdelivr.net/npm/vue/dist/vue.js', array(), '2.6.12',);
+			wp_enqueue_script('vue', 'https://unpkg.com/vue@next');
+
+			// 加载 ElementUI 的 CSS 样式文件
+			// wp_enqueue_style('element-ui', 'https://unpkg.com/element-ui/lib/theme-chalk/index.css');
+			wp_enqueue_style('elementPlus', 'https://unpkg.com/element-plus@latest/theme-chalk/index.css');
+
+
+
+			// 引入图标库
+			wp_enqueue_script('elementPlusIcons', 'https://unpkg.com/@element-plus/icons-vue', array('vue'),);
+
+			// 加载 ElementUI 的 JavaScript 文件
+			// wp_enqueue_script('element-ui', 'https://unpkg.com/element-ui/lib/index.js', array('vue'), '2.15.1',);
+			wp_enqueue_script('elementPlus', 'https://unpkg.com/element-plus@latest', array('vue'),);
+
+			wp_enqueue_script('Sortable', 'https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.8.3/Sortable.min.js', array(), '',);
+
+			//引入axios 请求
+			wp_enqueue_script('axios', 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js', array(), '',);
+
+			//引入自定义后台样式表
+			wp_enqueue_style('admin-ui', get_stylesheet_directory_uri() . '/assets/css/admin-ui.css', array(), wp_get_theme()->get('Version'), 'all');
+		}
+		// wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/email_infos_collection-admin.js', array('jquery'), $this->version, false);
 	}
 	public function add_plugin_admin_menu() // 主菜单
 	{
@@ -128,30 +157,45 @@ class Email_infos_collection_Admin
 			update_option($request['name'], $request['value']);
 			return get_option($request['name']);
 		}
-
-		// 上传文件
-
 		// 发送邮件
 		register_rest_route('info/email', '/senda', array(
 			'methods' => 'POST',
 			'callback' => 'myplugin_send_email',
 			'args' => array(
 				'to_email' => array(
-					'required' => true
+					'required' => true,
+					'validate_callback' => function ($param, $request, $key) {
+						if ($param === '') {
+							return new WP_Error('invalid_email', 'Email cannot be empty');
+						} else if (!is_email($param)) {
+							return new WP_Error('invalid_email', 'Incorrect email');
+						}
+						return true;
+					}
 				),
 				'to_name' => array(
-					'required' => true
+					'required' => true,
+					'validate_callback' => function ($param, $request, $key) {
+						if ($param === '') {
+							return new WP_Error('invalid_email', 'Full Name Cannot be empty');
+						}
+						return true;
+					}
 				),
 				'message' => array(
-					'required' => true
+					'required' => true,
+					'validate_callback' => function ($param, $request, $key) {
+						if ($param === '') {
+							return new WP_Error('invalid_email', 'Content cannot be empty');
+						}
+						return true;
+					}
 				)
-			)
+			),
 		));
 
 		function myplugin_send_email($request)
 		{
-
-
 			// 创建 PHPMailer 实例
 			$phpmailer = new PHPMailer();
 
@@ -167,7 +211,7 @@ class Email_infos_collection_Admin
 			$email_auto_repaly = get_option('jungle_email_auto_repaly') ?: '我们将会和你联系！';
 			// 获取传参参数
 			$from_email = get_option('jungle_email_account');
-			$from_name  = 'jungle123'; // 发件人名称
+			$from_name  = get_option('jungle_email_name'); // 发件人名称
 			$subject    = $request['subject']; // 邮件主题
 			$to_email   = $request['to_email']; // 收件人邮箱
 			$to_name    = $request['to_name']; // 收件人名称
@@ -178,13 +222,20 @@ class Email_infos_collection_Admin
 			$email_template = file_get_contents(__DIR__ . '/email_template.html');
 			$email_template = str_replace('{{email_auto_repaly}}', $email_auto_repaly, $email_template);
 			$email_template = str_replace('{{body}}', $message, $email_template);
+			// 如果上传文件时图片就将图片展示在邮件内容中
+			if ($attachment['isImage']) {
+				$email_template = str_replace('{{img}}', '<img src="' . $attachment['path'] . '">', $email_template);
+			} else {
+				$email_template = str_replace('{{img}}', '', $email_template);
+			}
 			// 配置发件人和收件人
 			$phpmailer->setFrom($from_email,  $from_name);
 			$phpmailer->addAddress($to_email, $to_name);
 
 			// 邮件内容为 HTML 格式
+			$phpmailer->CharSet = 'UTF-8';
 			$phpmailer->isHTML(true);
-			$phpmailer->Subject = $subject;
+			$phpmailer->Subject = $phpmailer->encodeHeader($subject);
 			$phpmailer->Body    = $email_template;
 			// 添加附件
 			if (!empty($attachment)) {
@@ -199,6 +250,7 @@ class Email_infos_collection_Admin
 				return  array(
 					'code' => 200,
 					'result' => '邮件发送成功',
+					'attachment' => $attachment,
 				);
 			} catch (Exception $e) {
 				// 发送失败时的处理逻辑
@@ -214,7 +266,9 @@ class Email_infos_collection_Admin
 			global $wpdb;
 			$user_agent = $_SERVER['HTTP_USER_AGENT'];
 			/***********************************************获取当前用户的IP地址 */
-			$ip_address = JungleBrowseStatisticsTools::get_location_ip_address();
+			// $ip_address = JungleBrowseStatisticsTools::get_location_ip_address();
+			$ip_address = '116.25.106.143';
+
 			/***********************************************获取设备*/
 			$device = JungleBrowseStatisticsTools::get_device_name($user_agent);
 			/***********************************************获取浏览器*/
@@ -259,7 +313,27 @@ class Email_infos_collection_Admin
 				$wpdb->insert($table_name, $data);
 			}
 		}
+		// 查询收集数据表
+		register_rest_route('get/infos', '/list', array(
+			'methods' => 'POST',
+			'callback' => 'get_email_infos_list',
+		));
+		function get_email_infos_list($request)
+		{
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'jungle_users_infos';
+
+			$items_per_page = isset($request['items_per_page']) ? intval($request['items_per_page']) : 10;
+			$page_number = isset($request['page_number']) ? intval($request['page_number']) : 1;
+			$order_by = isset($request['order_by']) ? $request['order_by'] : 'id';
+			$order = isset($request['order']) ? $request['order'] : 'DESC';
+			$offset = ($page_number - 1) * $items_per_page;
+			$results = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name ORDER BY %s %s LIMIT %d OFFSET %d", $order_by, $order, $items_per_page, $offset));
+			// 将结果返回给前端
+			wp_send_json($results);
+		}
 	}
+	// 上传文件
 	public function handle_file_upload() // 上传文件wp_ajax_upload_file
 	{
 		// 检查是否有文件上传
@@ -302,6 +376,7 @@ class Email_infos_collection_Admin
 					wp_send_json_success(array(
 						'path' => $file_path,
 						'fileName' => $file_name,
+						'isImage' => in_array(strtoupper($file_ext), array('JPG', 'PNG', 'GIF', 'SVG', 'WEBP', 'AVIF'))
 					));
 				} else {
 					wp_send_json_error('Unable to move files,Please try again later');

@@ -92,6 +92,7 @@ class Email_infos_collection
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('rest_api_init', $plugin_admin, 'ajax_rest_api_init'); // 注册ajax 请求
 		$this->loader->add_action('wp_ajax_upload_file', $plugin_admin, 'handle_file_upload'); // 上传文件
+		$this->loader->add_action('wp_ajax_nopriv_upload_file', $plugin_admin, 'handle_file_upload'); // 上传文件(未登录)
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_plugin_admin_menu'); // 注册菜单
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_plugin_admin_submenu'); // 注册子菜单
 

@@ -22,12 +22,35 @@
 			file = this.files[0];
 		}
 	});
+	function email_success() {
+		alert('邮件发送成功')
+		$(".dialog_content").css('animation-name', 'flipOutY').css('visibility', 'hieden');
+		setTimeout(function () {
+			$('.dialog_popup_Email').addClass('hidden')
+		}, 2000)
+		$('#jungle_email_name').val('')
+		$('#jungle_email_account').val('')
+		$('#jungle_email_phone').val('')
+		$('#jungle_email_subject').val('')
+		$('#jungle_email_message').val('')
+		$('#jungle_email_attachment').val('')
+
+	}
+	function email_error(e) {
+		var obj = e.responseJSON.data.params
+		var str = Object.keys(obj).map(key => {
+			return obj[key]
+		}).join(',')
+		alert(str);
+	}
 	$('#sendEmail').click(function () {
 		var name = $('#jungle_email_name').val(),
 			account = $('#jungle_email_account').val(),
 			phone = $('#jungle_email_phone').val(),
 			message = $('#jungle_email_message').val(),
 			subject = $('#jungle_email_subject').val();
+
+
 		if ($.trim(file) != '') {
 			const formData = new FormData();
 			formData.append('action', 'upload_file');  // 对应后端的 'wp_ajax_upload_file'
@@ -48,10 +71,10 @@
 						attachment: response.data,
 					})
 						.then(function (response) {
-							console.log(response);
+							email_success()
 						})
 						.catch(function (error) {
-							console.log(error);
+							email_error(error);
 						});
 				}
 			});
@@ -64,10 +87,10 @@
 				phone: phone,
 			})
 				.then(function (response) {
-					console.log(response);
+					email_success()
 				})
 				.catch(function (error) {
-					console.log(error);
+					email_error(error);
 				});
 		}
 	})
